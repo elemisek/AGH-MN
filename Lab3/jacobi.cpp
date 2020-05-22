@@ -24,7 +24,7 @@ void fprintarr(double *t1, int N, double h,const char* str)
 	file.open(str, std::ios::out);
 	for (int i = 0; i < N; i++)
 	{
-		file << i * h << " " << t1[i] << std::endl;
+		file << t1[i] << std::endl;
 	}
 }
 
@@ -33,15 +33,16 @@ int main()
 {
 
 	const int N = 1000;
-	int iter = 1000;
+	int iter = 0;
 	// do wpisania do podpunktu a, b i c
 	double omega = 0.8; //=0.8; =0.8
-	double beta = 0; //=0.4; =0.4
-	double F0 = 0; //=0; =0.1
+	double beta =0.4; //=0.4
+	double F0 = 0.1;
 
 	const char * file = "result.txt";
-	double h =0.02,xs[N], xn[N], b[N];
-	double d0[N],d1[N],d2[N];
+	double h = 0.02, xs[N], xn[N], b[N];
+	double d0[N], d1[N], d2[N];
+	double sumxn = 1e-4, sumxs = 0;
 
 
 	double a1 = 1;
@@ -53,7 +54,7 @@ int main()
 	d1[1] = -1;
 	d2[1] = 0;
 	b[1] = 0;
-	for (int i = 2; i < N - 1; i++)
+	for (int i = 2; i < N; i++)
 	{
 		d0[i] = a3;
 		d1[i] = a2;
@@ -65,23 +66,32 @@ int main()
 		xs[i] = 0;
 		xn[i] = 0;
 	}
-	for(int j=0; j<iter; j++)
+	for(;true;iter++)
 	{
+		if (fabs(sumxn - sumxs) <1e-5)
+			break;
 		xn[0] = b[0]/d0[0];
 		xn[1] = (b[1] - d1[1] * xs[0]) / d0[1];
-			for(int i=2; i<N-1; i++)
+			for(int i=2; i<N; i++)
 			{
 				xn[i] = (b[i]-d1[i]*xs[i-1]-d2[i]*xs[i-2])/d0[i];
+			}
+			sumxs = sumxn = 0;
+			for (int i = 0; i < N; i++)
+			{
+				sumxs += xs[i] * xs[i];
+				sumxn += xn[i] * xn[i];
 			}
 			for (int i = 0; i < N; i++)
 			{
 				xs[i]=xn[i];
 			}
+			
 	}
 
 	
 	printarr(xn, N);
 	fprintarr(xn, N, h, file);
 
-	return 0;
+	std::cout << std::endl << iter;
 }
